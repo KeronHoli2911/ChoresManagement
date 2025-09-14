@@ -3,12 +3,11 @@ from django.urls import reverse_lazy
 from .models import Task
 from django.shortcuts import redirect
 from django.utils import timezone
-
-from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Task
 from .forms import TaskForm
 from .mixins import TaskOwnerMixin 
+from .models import TaskCategory
+from .forms import TaskCategoryForm
+
 # Create your views here.
 class TaskListView(ListView):
     model = Task
@@ -54,3 +53,35 @@ def task_complete (request, pk):
     task.progress = 100
     task.save()
     return redirect("tasks:task_list")
+
+
+class TaskCategoryListView(ListView):
+    model = TaskCategory
+    template_name = "categories/category_list.html"
+    context_object_name = "categories"
+
+
+class TaskCategoryDetailView(DetailView):
+    model = TaskCategory
+    template_name = "categories/category_detail.html"
+    context_object_name = "category"
+
+
+class TaskCategoryCreateView(CreateView):
+    model = TaskCategory
+    form_class = TaskCategoryForm
+    template_name = "categories/category_form.html"
+    success_url = reverse_lazy("category_list")
+
+
+class TaskCategoryUpdateView(UpdateView):
+    model = TaskCategory
+    form_class = TaskCategoryForm
+    template_name = "categories/category_form.html"
+    success_url = reverse_lazy("category_list")
+
+
+class TaskCategoryDeleteView(DeleteView):
+    model = TaskCategory
+    template_name = "categories/category_confirm_delete.html"
+    success_url = reverse_lazy("category_list")

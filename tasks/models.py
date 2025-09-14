@@ -307,3 +307,44 @@ class Task(models.Model):
     # def stop_timer(self):
     #     """Зупинити відлік часу роботи"""
     #     pass 
+
+
+
+class TaskCategory(models.Model):
+    name = models.CharField(
+        max_length=100,
+        unique=True,
+        verbose_name="Назва",
+        help_text="Зберігання назви категорії завдань"
+    )
+    description = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Опис",
+        help_text="Детальний опис категорії"
+    )
+    color = models.CharField(
+        max_length=7,
+        default="#007bff",
+        blank=True,
+        verbose_name="Колір",
+        help_text="HEX-колір (наприклад, #FF0000) для візуального відображення"
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="Активна",
+        help_text="Визначає, чи є категорія активною для використання"
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Дата створення",
+        help_text="Відстежування часу створення категорії"
+    )
+
+    class Meta:
+        verbose_name = "Категорія завдань"
+        verbose_name_plural = "Категорії завдань"
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
