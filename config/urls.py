@@ -16,7 +16,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from views import *
+
+app_name = "accounts"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    path("families/", FamilyListView.as_view(), name="family_list"),
+    path("families/<int:pk>/", FamilyDetailView.as_view(), name="family_detail"),
+    path("families/create/", FamilyCreateView.as_view(), name="family_create"),
+    path("families/<int:pk>/update/", FamilyUpdateView.as_view(), name="family_update"),
+    path("families/<int:pk>/delete/", FamilyDeleteView.as_view(), name="family_delete"),
+
+    path("login/", UserLoginView.as_view(), name="login"),
+    path("logout/", UserLogoutView.as_view(), name="logout"),
 ]
+
