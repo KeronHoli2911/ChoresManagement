@@ -1,60 +1,75 @@
 from django.shortcuts import render
-from django.contrib.auth.views import LoginView, LogoutView
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+
+# Create your views here.
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import (
+    ListView, DetailView, CreateView, UpdateView, DeleteView
+)
+from django.contrib.auth import get_user_model
 from .models import Family
 from .forms import FamilyForm, CustomLoginForm
-# Create your views here.
+from .mixins import FamilyMixin, RoleRequiredMixin
 
-class FamilyListView(LoginRequiredMixin, ListView):
+User = get_user_model()
+
+# -----------------------------
+# CRUD для Family
+# -----------------------------
+
+class FamilyListView(RoleRequiredMixin, ListView):
     model = Family
     template_name = "accounts/family_list.html"
     context_object_name = "families"
+    required_roles = ["parent"]  # тільки батьки можуть переглядати список сімей
 
 
-class FamilyDetailView(LoginRequiredMixin, DetailView):
+class FamilyDetailView(RoleRequiredMixin, DetailView):
     model = Family
     template_name = "accounts/family_detail.html"
     context_object_name = "family"
+    required_roles = ["parent"]
 
 
-class FamilyCreateView(LoginRequiredMixin, CreateView):
+class FamilyCreateView(RoleRequiredMixin, CreateView):
     model = Family
     form_class = FamilyForm
     template_name = "accounts/family_form.html"
     success_url = reverse_lazy("accounts:family_list")
+    required_roles = ["parent"]
 
 
-class FamilyUpdateView(LoginRequiredMixin, UpdateView):
+class FamilyUpdateView(RoleRequiredMixin, UpdateView):
     model = Family
     form_class = FamilyForm
     template_name = "accounts/family_form.html"
     success_url = reverse_lazy("accounts:family_list")
+    required_roles = ["parent"]
 
 
-class FamilyDeleteView(LoginRequiredMixin, DeleteView):
+class FamilyDeleteView(RoleRequiredMixin, DeleteView):
     model = Family
     template_name = "accounts/family_confirm_delete.html"
     success_url = reverse_lazy("accounts:family_list")
+    required_roles = ["parent"]
+
+
+from django.contrib.auth.views import LoginView, LogoutView
+from django.urls import reverse_lazy
+
+# -----------------------------
+# Login / Logout
+# -----------------------------
 
 class UserLoginView(LoginView):
     template_name = "accounts/login.html"
     authentication_form = CustomLoginForm
+    redirect_authenticated_user = True  # якщо вже авторизований, відправляти на home
+    extra_context = {"title": "Вхід"}
 
     def get_success_url(self):
+        # після входу можна направляти на список сімей або на домашню сторінку
         return reverse_lazy("accounts:family_list")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = "Вхід"
-        return context
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return reverse_lazy("home")  
-        return super().dispatch(request, *args, **kwargs)
 
 
 class UserLogoutView(LogoutView):
-    next_page = reverse_lazy("accounts:login")
+    next_page = reverse_lazy("accounts:login")  # після виходу повертаємо на сторінку входу 
