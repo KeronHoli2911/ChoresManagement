@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from . import views
+from views import UserPreferencesUpdateView
 
 app_name = "accounts"
 
@@ -33,4 +34,7 @@ urlpatterns = [
     # Login / Logout
     path("login/", views.UserLoginView.as_view(), name="login"),
     path("logout/", views.UserLogoutView.as_view(), name="logout"),
+
+    path("edit/", UserPreferencesUpdateView.as_view(), name="preferences_view"),
 ] 
+
